@@ -3,17 +3,17 @@ import { Link } from 'react-router-dom';
 import { Package, ChevronRight } from 'lucide-react';
 
 const statusStyles: Record<ShipmentStatus, string> = {
-  'ON-TRACK': 'bg-safe/10 text-safe border-safe/40 shadow-[0_0_10px_rgba(16,185,129,0.1)]',
-  'AT-RISK': 'bg-warning/10 text-warning border-warning/40 shadow-[0_0_10px_rgba(245,158,11,0.1)]',
-  'CRITICAL': 'bg-critical/10 text-critical border-critical/40 shadow-[0_0_15px_rgba(239,68,68,0.3)]',
+  'ON-TRACK': 'bg-safe/10 text-safe border-safe/30 border-t-safe/50 backdrop-blur-md shadow-[0_4px_10px_rgba(16,185,129,0.1)]',
+  'AT-RISK': 'bg-warning/10 text-warning border-warning/30 border-t-warning/50 backdrop-blur-md shadow-[0_4px_10px_rgba(245,158,11,0.1)]',
+  'CRITICAL': 'bg-critical/10 text-critical border-critical/30 border-t-critical/50 backdrop-blur-md shadow-[0_0_15px_rgba(239,68,68,0.3)]',
 };
 
 export default function ShipmentSidebar() {
   return (
-    <aside className="w-72 border-r border-white/10 bg-white/[0.08] backdrop-blur-3xl overflow-y-auto shrink-0 flex flex-col shadow-2xl">
+    <aside className="w-80 border border-white/10 border-t-white/40 bg-white/[0.05] backdrop-blur-3xl overflow-y-auto shrink-0 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex flex-col">
       <div className="p-6 border-b border-white/10">
         <h2 className="text-sm font-black text-white/90 flex items-center gap-3 uppercase tracking-[0.2em]">
-          <Package className="w-4 h-4 text-primary drop-shadow-[0_0_5px_rgba(59,130,246,0.5)]" />
+          <Package className="w-5 h-5 text-white/70 drop-shadow-[0_0_5px_rgba(255,255,255,0.3)]" />
           Live Cargo
         </h2>
       </div>
@@ -22,7 +22,7 @@ export default function ShipmentSidebar() {
           <Link
             key={s.id}
             to={s.status === 'CRITICAL' ? `/alert/alert-1` : '#'}
-            className="block p-6 hover:bg-white/[0.06] transition-all group border-l-4 border-transparent hover:border-primary/50 relative overflow-hidden"
+            className="block p-6 hover:bg-white/[0.03] transition-all group border-l-4 border-transparent hover:border-white/40 relative overflow-hidden"
           >
             <div className="flex items-center justify-between mb-3">
               <span className="text-[10px] font-mono font-black text-white/30 uppercase tracking-widest">{s.batchId}</span>
@@ -31,7 +31,7 @@ export default function ShipmentSidebar() {
               </span>
             </div>
             <div className="text-sm font-black text-white/90 flex items-center gap-2 group-hover:text-white transition-colors">
-              {s.origin} <ChevronRight className="w-3.5 h-3.5 text-primary/40 group-hover:text-primary transition-all" /> {s.destination}
+              {s.origin} <ChevronRight className="w-3.5 h-3.5 text-white/20 group-hover:text-white transition-all" /> {s.destination}
             </div>
             <div className="flex items-center justify-between mt-4 text-[10px] font-black uppercase tracking-widest">
                <span className="text-white/40">{s.cargo}</span>

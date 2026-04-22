@@ -82,7 +82,7 @@ export default function MapVisualization() {
     liveSignals.forEach(sig => {
       const {x, y} = latLngToXY(sig.lat || 13.08, sig.lng || 80.27, w, h);
       const radius = sig.severity === 'High' ? 60 : sig.severity === 'Medium' ? 40 : 25;
-      const color = severityColor[sig.severity as keyof typeof severityColor] || '#3b82f6';
+      const color = severityColor[sig.severity as keyof typeof severityColor] || '#a1a1aa';
       
       const gradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
       gradient.addColorStop(0, color + '50');

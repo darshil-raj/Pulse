@@ -5,9 +5,9 @@ import { alerts, geminiAdvisory } from '@/data/mockData';
 import { AlertTriangle, ArrowLeft, CheckCircle, Sparkles, ShieldAlert, TrendingDown, MapPin } from 'lucide-react';
 
 const severityBadge: Record<string, string> = {
-  Low: 'bg-safe/10 text-safe border-safe/30',
-  Medium: 'bg-warning/10 text-warning border-warning/30',
-  High: 'bg-critical/10 text-critical border-critical/30',
+  Low: 'bg-safe/10 text-safe border-safe/30 border-t-safe/50 backdrop-blur-md',
+  Medium: 'bg-warning/10 text-warning border-warning/30 border-t-warning/50 backdrop-blur-md',
+  High: 'bg-critical/10 text-critical border-critical/30 border-t-critical/50 backdrop-blur-md shadow-[0_0_10px_rgba(239,68,68,0.2)]',
 };
 
 // Simple cascade visualization
@@ -87,26 +87,26 @@ export default function AlertDetail() {
   }
 
   const bannerColor = alert.severity === 'red'
-    ? 'bg-critical/20 border-critical/40 text-critical shadow-[0_0_25px_rgba(239,68,68,0.2)]'
-    : 'bg-warning/20 border-warning/40 text-warning shadow-[0_0_25px_rgba(245,158,11,0.2)]';
+    ? 'bg-critical/10 border-critical/30'
+    : 'bg-warning/10 border-warning/30';
 
   return (
     <div className="h-screen flex flex-col overflow-hidden site-bg relative font-sans">
-      <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px] animate-pulse" />
+      <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-white/[0.02] rounded-full blur-[120px] animate-pulse" />
       
       <div className="relative z-10 flex flex-col h-full">
         <Navbar />
 
-        {/* Alert Banner */}
-        <div className={`border-b border-white/20 backdrop-blur-3xl ${bannerColor} px-8 py-5 flex items-center gap-4`}>
-          <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center shadow-lg border border-white/20">
-            <AlertTriangle className="w-7 h-7 animate-bounce" />
+        {/* Alert Banner - Floating Crystal style */}
+        <div className={`mx-4 mt-4 border border-white/10 border-t-white/30 backdrop-blur-3xl rounded-[2rem] ${bannerColor} px-8 py-5 flex items-center gap-4 shadow-2xl`}>
+          <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center shadow-lg border border-white/20">
+            <AlertTriangle className="w-7 h-7 text-white/80 animate-bounce" />
           </div>
           <div>
-            <span className="font-black text-lg tracking-[0.2em] uppercase">
+            <span className="font-black text-lg tracking-[0.2em] uppercase text-white">
                 {alert.severity === 'red' ? 'Critical' : 'Elevated'} Threat — {alert.portName}
             </span>
-            <div className="flex gap-4 mt-1 text-[10px] font-black uppercase tracking-widest opacity-70">
+            <div className="flex gap-4 mt-1 text-[10px] font-black uppercase tracking-widest text-white/40">
                 <span>Confidence: {alert.confidence}%</span>
                 <span>Detected: {new Date(alert.timestamp).toLocaleString('en-IN')}</span>
             </div>
@@ -114,18 +114,18 @@ export default function AlertDetail() {
         </div>
 
         <div className="flex-1 overflow-y-auto custom-scrollbar">
-          <div className="p-8 max-w-7xl mx-auto w-full space-y-8">
-            <Link to="/" className="inline-flex items-center gap-3 text-xs font-black uppercase tracking-widest text-white/50 hover:text-primary transition-all group">
+          <div className="p-8 max-w-7xl mx-auto w-full space-y-8 pt-4">
+            <Link to="/" className="inline-flex items-center gap-3 text-xs font-black uppercase tracking-widest text-white/50 hover:text-white transition-all group">
               <ArrowLeft className="w-5 h-5 transition-transform group-hover:-translate-x-2" /> Back to Intelligence Core
             </Link>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
               {/* Cascade Graph */}
-              <div className="lg:col-span-7 bg-white/[0.08] backdrop-blur-3xl border border-white/20 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-critical to-transparent opacity-50" />
+              <div className="lg:col-span-7 bg-white/[0.05] backdrop-blur-3xl border border-white/10 border-t-white/40 rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-critical/30 to-transparent opacity-50" />
                 <div className="flex items-center justify-between mb-8">
-                  <h3 className="text-sm font-black text-white uppercase tracking-[0.25em] flex items-center gap-3">
-                    <ShieldAlert className="w-5 h-5 text-critical drop-shadow-[0_0_5px_rgba(239,68,68,0.5)]" />
+                  <h3 className="text-sm font-black text-white/90 uppercase tracking-[0.25em] flex items-center gap-3">
+                    <ShieldAlert className="w-5 h-5 text-white/60" />
                     Network Blast Radius
                   </h3>
                   <div className="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[9px] font-black text-white/40 uppercase tracking-widest">
@@ -138,11 +138,11 @@ export default function AlertDetail() {
               </div>
 
               {/* Gemini Advisory */}
-              <div className="lg:col-span-5 bg-white/[0.08] backdrop-blur-3xl border border-white/20 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-50" />
+              <div className="lg:col-span-5 bg-white/[0.05] backdrop-blur-3xl border border-white/10 border-t-white/40 rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-50" />
                 <div className="flex items-center justify-between mb-8">
-                  <h3 className="text-sm font-black text-white uppercase tracking-[0.25em] flex items-center gap-3">
-                    <Sparkles className="w-5 h-5 text-primary drop-shadow-[0_0_5px_rgba(59,130,246,0.5)]" />
+                  <h3 className="text-sm font-black text-white/90 uppercase tracking-[0.25em] flex items-center gap-3">
+                    <Sparkles className="w-5 h-5 text-white/60" />
                     Gemini Insight
                   </h3>
                 </div>
@@ -158,18 +158,18 @@ export default function AlertDetail() {
                 ) : (
                   <div className="space-y-8">
                     <div className="bg-white/5 p-6 rounded-2xl border border-white/10 shadow-inner">
-                      <h4 className="font-black text-primary text-[10px] uppercase tracking-[0.25em] mb-3">Intelligence Summary</h4>
+                      <h4 className="font-black text-white/40 text-[10px] uppercase tracking-[0.25em] mb-3">Intelligence Summary</h4>
                       <p className="text-base text-white/80 leading-relaxed font-medium italic">"{geminiAdvisory.summary}"</p>
                     </div>
 
                     <div className="grid grid-cols-2 gap-6">
                       <div className="bg-white/5 rounded-2xl p-6 border border-white/10 hover:bg-white/10 transition-all shadow-inner">
                         <div className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-2">Confidence</div>
-                        <div className="text-3xl font-mono font-black text-critical drop-shadow-[0_0_10px_rgba(239,68,68,0.4)]">{geminiAdvisory.confidence}%</div>
+                        <div className="text-3xl font-mono font-black text-white">{geminiAdvisory.confidence}%</div>
                       </div>
                       <div className="bg-white/5 rounded-2xl p-6 border border-white/10 hover:bg-white/10 transition-all shadow-inner">
                         <div className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-2 flex items-center gap-2"><TrendingDown className="w-4 h-4 text-safe" /> Lead-Time Sav.</div>
-                        <div className="text-3xl font-mono font-black text-safe drop-shadow-[0_0_10px_rgba(16,185,129,0.4)]">-{geminiAdvisory.delayReduction}%</div>
+                        <div className="text-3xl font-mono font-black text-safe">-{geminiAdvisory.delayReduction}%</div>
                       </div>
                     </div>
 
@@ -204,11 +204,11 @@ export default function AlertDetail() {
             </div>
 
             {/* Signal Evidence Table */}
-            <div className="bg-white/[0.08] backdrop-blur-3xl border border-white/20 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+            <div className="bg-white/[0.05] backdrop-blur-3xl border border-white/10 border-t-white/40 rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden">
               <div className="flex items-center justify-between mb-8">
-                <h3 className="text-sm font-black text-white uppercase tracking-[0.25em]">Multi-Source Signal Evidence</h3>
+                <h3 className="text-sm font-black text-white/90 uppercase tracking-[0.25em]">Multi-Source Signal Evidence</h3>
                 <div className="flex gap-4">
-                    <span className="text-[10px] font-black text-white/40 uppercase tracking-widest flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-primary shadow-[0_0_5px_rgba(59,130,246,1)]" /> Fusion Score Calculated</span>
+                    <span className="text-[10px] font-black text-white/40 uppercase tracking-widest flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-white shadow-[0_0_5px_rgba(255,255,255,1)]" /> Fusion Score Calculated</span>
                 </div>
               </div>
               <div className="overflow-x-auto">
@@ -225,17 +225,17 @@ export default function AlertDetail() {
                   </thead>
                   <tbody className="divide-y divide-white/5">
                     {alert.signals.map(sig => (
-                      <tr key={sig.id} className="hover:bg-white/[0.04] transition-all group">
-                        <td className="py-5 px-6 font-black text-white uppercase tracking-widest group-hover:text-primary transition-colors">{sig.type}</td>
-                        <td className="py-5 px-6 text-white/60 text-xs font-bold uppercase tracking-tighter">{sig.source}</td>
-                        <td className="py-5 px-6 text-white/60 text-xs font-bold uppercase tracking-tighter">{sig.location}</td>
+                      <tr key={sig.id} className="hover:bg-white/[0.03] transition-all group">
+                        <td className="py-5 px-6 font-black text-white/80 uppercase tracking-widest group-hover:text-white transition-colors">{sig.type}</td>
+                        <td className="py-5 px-6 text-white/40 text-xs font-bold uppercase tracking-tighter">{sig.source}</td>
+                        <td className="py-5 px-6 text-white/40 text-xs font-bold uppercase tracking-tighter">{sig.location}</td>
                         <td className="py-5 px-6">
                           <span className={`text-[10px] font-black px-3 py-1 rounded-sm border ${severityBadge[sig.severity]}`}>
                             {sig.severity.toUpperCase()}
                           </span>
                         </td>
-                        <td className="py-5 px-6 font-mono font-black text-primary drop-shadow-[0_0_5px_rgba(59,130,246,0.4)]">{(sig.fusionScore * 100).toFixed(0)}%</td>
-                        <td className="py-5 px-6 text-white/40 text-[10px] font-bold uppercase tracking-widest text-right">
+                        <td className="py-5 px-6 font-mono font-black text-white/60">{(sig.fusionScore * 100).toFixed(0)}%</td>
+                        <td className="py-5 px-6 text-white/30 text-[10px] font-bold uppercase tracking-widest text-right">
                           {new Date(sig.timestamp).toLocaleString('en-IN', { dateStyle: 'short', timeStyle: 'short' })}
                         </td>
                       </tr>
