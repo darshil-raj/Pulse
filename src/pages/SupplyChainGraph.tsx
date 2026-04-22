@@ -92,6 +92,9 @@ export default function SupplyChainGraphPage() {
 
   return (
     <div className="h-screen flex flex-col overflow-hidden site-bg relative">
+      {/* Extra dark overlay specifically for graph page */}
+      <div className="absolute inset-0 bg-black/60 z-0" />
+      
       <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px] animate-pulse" />
       
       <div className="relative z-10 flex flex-col h-full">
