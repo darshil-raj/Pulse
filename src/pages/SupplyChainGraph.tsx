@@ -90,7 +90,7 @@ export default function SupplyChainGraphPage() {
   const selected = graphNodes.find(n => n.id === selectedNode);
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden bg-[#020617] relative">
+    <div className="h-screen flex flex-col overflow-hidden site-bg relative">
       <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px] animate-pulse" />
       
       <div className="relative z-10 flex flex-col h-full">

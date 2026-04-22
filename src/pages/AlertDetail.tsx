@@ -90,7 +90,7 @@ export default function AlertDetail() {
     : 'bg-warning/20 border-warning/30 text-warning shadow-[0_0_15px_rgba(245,158,11,0.1)]';
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden bg-[#020617] relative font-sans">
+    <div className="h-screen flex flex-col overflow-hidden site-bg relative font-sans">
       {/* Background Glows */}
       <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px] animate-pulse" />
       
