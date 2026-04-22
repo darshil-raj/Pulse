@@ -1,8 +1,8 @@
 import { useParams, Link } from 'react-router-dom';
 import { useState } from 'react';
 import Navbar from '@/components/layout/Navbar';
-import { alerts, geminiAdvisory } from '@/data/mockData';
-import { AlertTriangle, ArrowLeft, CheckCircle, Sparkles, ShieldAlert, TrendingDown, MapPin } from 'lucide-react';
+import { alerts, geminiAdvisory as initialAdvisory } from '@/data/mockData';
+import { AlertTriangle, ArrowLeft, CheckCircle, Sparkles, ShieldAlert, TrendingDown, MapPin, Loader2, Activity } from 'lucide-react';
 
 const severityBadge: Record<string, string> = {
   Low: 'bg-safe/10 text-safe border-safe/30 border-t-safe/50 backdrop-blur-md',
@@ -76,6 +76,10 @@ export default function AlertDetail() {
   const { id } = useParams();
   const alert = alerts.find(a => a.id === id) || alerts[0];
   const [accepted, setAccepted] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const [testing, setTesting] = useState(false);
+  const [hasInsight, setHasInsight] = useState(false);
+  const [advisory, setAdvisory] = useState(initialAdvisory);
 
   if (!alert) {
     return (
@@ -85,6 +89,54 @@ export default function AlertDetail() {
       </div>
     );
   }
+
+  const testConnection = async () => {
+    setTesting(true);
+    try {
+      const response = await fetch('http://localhost:8000/api/test-connection');
+      const data = await response.json();
+      if (data.status === 'success') {
+        window.alert("Neural Link Verified: " + data.response);
+      } else {
+        window.alert("Neural Link Failed: " + (data.details || data.message));
+      }
+    } catch (err) {
+      window.alert("Backend Connection Failed. Is the server running on port 8000?");
+    } finally {
+      setTesting(false);
+    }
+  };
+
+  const handleGenerate = async () => {
+    setGenerating(true);
+    try {
+      const response = await fetch('http://localhost:8000/api/simulate-disruption', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          port_name: alert.portName,
+          confidence: alert.confidence,
+          signals: alert.signals.map(s => s.description)
+        }),
+      });
+      const data = await response.json();
+      
+      setAdvisory(prev => ({
+        ...prev,
+        summary: data.advisory || "AI Service response empty."
+      }));
+      setHasInsight(true);
+    } catch (error) {
+      console.error('Error generating insight:', error);
+      setAdvisory(prev => ({
+        ...prev,
+        summary: "Connection Error: Backend unreachable. Ensure MOCK_AI=true is set in backend/.env if no API key is available."
+      }));
+      setHasInsight(true);
+    } finally {
+      setGenerating(false);
+    }
+  };
 
   const bannerColor = alert.severity === 'red'
     ? 'bg-critical/10 border-critical/30'
@@ -115,9 +167,20 @@ export default function AlertDetail() {
 
         <div className="flex-1 overflow-y-auto custom-scrollbar">
           <div className="p-8 max-w-7xl mx-auto w-full space-y-8 pt-4">
-            <Link to="/" className="inline-flex items-center gap-3 text-xs font-black uppercase tracking-widest text-white/50 hover:text-white transition-all group">
-              <ArrowLeft className="w-5 h-5 transition-transform group-hover:-translate-x-2" /> Back to Intelligence Core
-            </Link>
+            <div className="flex justify-between items-center">
+                <Link to="/" className="inline-flex items-center gap-3 text-xs font-black uppercase tracking-widest text-white/50 hover:text-white transition-all group">
+                <ArrowLeft className="w-5 h-5 transition-transform group-hover:-translate-x-2" /> Back to Intelligence Core
+                </Link>
+                
+                <button 
+                    onClick={testConnection}
+                    disabled={testing}
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-white/40 hover:bg-white/10 hover:text-white transition-all"
+                >
+                    {testing ? <Loader2 className="w-3 h-3 animate-spin" /> : <Activity className="w-3 h-3" />}
+                    Verify Neural Link
+                </button>
+            </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
               {/* Cascade Graph */}
@@ -138,7 +201,7 @@ export default function AlertDetail() {
               </div>
 
               {/* Gemini Advisory */}
-              <div className="lg:col-span-5 bg-white/[0.05] backdrop-blur-3xl border border-white/10 border-t-white/40 rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden">
+              <div className="lg:col-span-5 bg-white/[0.05] backdrop-blur-3xl border border-white/10 border-t-white/40 rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden flex flex-col">
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-50" />
                 <div className="flex items-center justify-between mb-8">
                   <h3 className="text-sm font-black text-white/90 uppercase tracking-[0.25em] flex items-center gap-3">
@@ -147,7 +210,28 @@ export default function AlertDetail() {
                   </h3>
                 </div>
 
-                {accepted ? (
+                {!hasInsight ? (
+                  <div className="flex-1 flex flex-col items-center justify-center space-y-6">
+                    <div className="w-20 h-20 rounded-full bg-white/5 border border-white/10 flex items-center justify-center relative">
+                        <Sparkles className={`w-10 h-10 text-white/40 ${generating ? 'animate-pulse' : ''}`} />
+                        {generating && (
+                            <div className="absolute inset-0 rounded-full border-2 border-white/20 border-t-white animate-spin" />
+                        )}
+                    </div>
+                    <div className="text-center space-y-2">
+                        <h4 className="font-black text-white/80 uppercase tracking-widest">Neural Advisory Ready</h4>
+                        <p className="text-[10px] text-white/30 font-bold uppercase tracking-tighter max-w-[200px]">Requesting AI fusion to synthesize multi-source signals.</p>
+                    </div>
+                    <button
+                      onClick={handleGenerate}
+                      disabled={generating}
+                      className="px-8 py-4 rounded-2xl bg-white text-black font-black text-xs uppercase tracking-[0.2em] hover:bg-white/90 transition-all active:scale-95 disabled:opacity-50 shadow-[0_10px_30px_rgba(255,255,255,0.2)] flex items-center gap-3"
+                    >
+                      {generating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                      {generating ? 'Synthesizing...' : 'Generate Fusion Analysis'}
+                    </button>
+                  </div>
+                ) : accepted ? (
                   <div className="flex flex-col items-center justify-center h-[400px] text-safe bg-white/5 rounded-2xl border border-safe/30 animate-in zoom-in duration-500 shadow-inner">
                     <div className="w-24 h-24 rounded-full bg-safe/20 border-2 border-safe flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(16,185,129,0.4)]">
                         <CheckCircle className="w-12 h-12" />
@@ -156,31 +240,31 @@ export default function AlertDetail() {
                     <p className="text-xs text-white/50 mt-3 font-bold uppercase tracking-[0.1em] text-center max-w-[280px]">Node synchronization complete. Cargo re-manifested via Tuticorin Corridor.</p>
                   </div>
                 ) : (
-                  <div className="space-y-8">
+                  <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
                     <div className="bg-white/5 p-6 rounded-2xl border border-white/10 shadow-inner">
                       <h4 className="font-black text-white/40 text-[10px] uppercase tracking-[0.25em] mb-3">Intelligence Summary</h4>
-                      <p className="text-base text-white/80 leading-relaxed font-medium italic">"{geminiAdvisory.summary}"</p>
+                      <p className="text-base text-white/80 leading-relaxed font-medium italic whitespace-pre-line">"{advisory.summary}"</p>
                     </div>
 
                     <div className="grid grid-cols-2 gap-6">
                       <div className="bg-white/5 rounded-2xl p-6 border border-white/10 hover:bg-white/10 transition-all shadow-inner">
                         <div className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-2">Confidence</div>
-                        <div className="text-3xl font-mono font-black text-white">{geminiAdvisory.confidence}%</div>
+                        <div className="text-3xl font-mono font-black text-white">{advisory.confidence}%</div>
                       </div>
                       <div className="bg-white/5 rounded-2xl p-6 border border-white/10 hover:bg-white/10 transition-all shadow-inner">
                         <div className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-2 flex items-center gap-2"><TrendingDown className="w-4 h-4 text-safe" /> Lead-Time Sav.</div>
-                        <div className="text-3xl font-mono font-black text-safe">-{geminiAdvisory.delayReduction}%</div>
+                        <div className="text-3xl font-mono font-black text-safe">-{advisory.delayReduction}%</div>
                       </div>
                     </div>
 
                     <div className="space-y-4 pt-2">
                       <div className="flex justify-between items-center text-xs border-b border-white/10 pb-4">
                         <span className="text-white/40 font-black uppercase tracking-widest">Target Path</span>
-                        <span className="text-white font-black uppercase tracking-wider">{geminiAdvisory.recommendedRoute}</span>
+                        <span className="text-white font-black uppercase tracking-wider">{advisory.recommendedRoute}</span>
                       </div>
                       <div className="flex justify-between items-center text-xs border-b border-white/10 pb-4">
                         <span className="text-white/40 font-black uppercase tracking-widest">Cost Impact</span>
-                        <span className="text-warning font-black uppercase tracking-wider">{geminiAdvisory.costDelta}</span>
+                        <span className="text-warning font-black uppercase tracking-wider">{advisory.costDelta}</span>
                       </div>
                     </div>
 
@@ -191,12 +275,12 @@ export default function AlertDetail() {
                       >
                         Accept Logic
                       </button>
-                      <Link
-                        to="/"
+                      <button
+                        onClick={() => setHasInsight(false)}
                         className="flex-1 px-8 py-4 rounded-2xl bg-white/5 border border-white/20 text-white font-black text-xs uppercase tracking-[0.2em] hover:bg-white/10 transition-all text-center flex items-center justify-center shadow-xl"
                       >
-                        Ignore
-                      </Link>
+                        Reset
+                      </button>
                     </div>
                   </div>
                 )}
