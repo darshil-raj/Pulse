@@ -48,18 +48,18 @@ function CustomNode({ data }: NodeProps) {
 const nodeTypes = { custom: CustomNode };
 
 const positions: Record<string, { x: number; y: number }> = {
-  'chennai': { x: 250, y: 0 },
-  'mumbai': { x: 550, y: 0 },
-  'tuticorin': { x: 0, y: 0 },
-  'jnpt': { x: 800, y: 0 },
-  'kolkata': { x: 1050, y: 0 },
-  'wh-bangalore': { x: 125, y: 250 },
-  'wh-delhi': { x: 800, y: 250 },
-  'wh-pune': { x: 550, y: 250 },
-  'wh-hyderabad': { x: 350, y: 250 },
-  'dc-coimbatore': { x: 0, y: 500 },
-  'dc-lucknow': { x: 900, y: 500 },
-  'dc-ahmedabad': { x: 600, y: 500 },
+  'chennai': { x: 650, y: 0 },
+  'mumbai': { x: 950, y: 0 },
+  'tuticorin': { x: 400, y: 0 },
+  'jnpt': { x: 1200, y: 0 },
+  'kolkata': { x: 1450, y: 0 },
+  'wh-bangalore': { x: 525, y: 250 },
+  'wh-delhi': { x: 1200, y: 250 },
+  'wh-pune': { x: 950, y: 250 },
+  'wh-hyderabad': { x: 750, y: 250 },
+  'dc-coimbatore': { x: 400, y: 500 },
+  'dc-lucknow': { x: 1300, y: 500 },
+  'dc-ahmedabad': { x: 1000, y: 500 },
 };
 
 const initialNodes: Node[] = graphNodes.map(n => ({
