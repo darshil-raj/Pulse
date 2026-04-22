@@ -1,10 +1,19 @@
+import os
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from google import genai
 
-# 🔑 SET YOUR API KEY
-client = genai.Client(api_key="AIzaSyBUoz20WPDibQIqthf-XkfOvc93BLXiF2w")
+# Load environment variables
+load_dotenv()
+
+# 🔑 SET YOUR API KEY (via .env)
+API_KEY = os.getenv("GEMINI_API_KEY")
+if not API_KEY:
+    print("⚠️ Warning: GEMINI_API_KEY not found in environment variables.")
+
+client = genai.Client(api_key=API_KEY)
 
 app = FastAPI()
 
@@ -52,20 +61,28 @@ def home():
 @app.post("/api/intel")
 def classify_intel(req: IntelRequest):
     prompt = f"""
+    You are a logistics AI analyst.
     Classify this logistics field report into one of:
     Road Block, Weather Event, Strike, Police Check, Port Congestion, Other.
 
-    Also extract:
-    - Location
-    - Severity (Low/Medium/High)
-    - One-line summary
+    Extract:
+    - classification (the type)
+    - location
+    - severity (Low/Medium/High)
+    - summary (one-line)
 
-    Return in JSON format.
-
+    Return ONLY a valid JSON object. Do not include markdown formatting like ```json.
+    
     Report: {req.text}
     """
 
     result = get_response(prompt)
+    
+    # Try to clean markdown if present
+    if "```json" in result:
+        result = result.split("```json")[1].split("```")[0].strip()
+    elif "```" in result:
+         result = result.split("```")[1].split("```")[0].strip()
 
     return {"result": result}
 

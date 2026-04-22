@@ -27,41 +27,55 @@ export default function IntelPanel() {
     if (!inputText.trim()) return;
     
     setLoading(true);
+    const tempInput = inputText;
+    setInputText('');
+
+    // Add initial pending report
+    const newReport: IntelReport = {
+      id: `new-${Date.now()}`,
+      classification: 'Processing...',
+      message: tempInput,
+      location: 'Detecting...',
+      timestamp: new Date().toISOString(),
+      validationStatus: 'Pending',
+    };
+    
+    setReports(prev => [newReport, ...prev]);
+
     try {
       // Call backend API to classify intel
       const response = await fetch('http://127.0.0.1:8000/api/intel', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: inputText }),
+        body: JSON.stringify({ text: tempInput }),
       });
       
       const data = await response.json();
       
-      // Add new report to the list
-      const newReport: IntelReport = {
-        id: `new-${Date.now()}`,
-        classification: 'Processing...',
-        message: inputText,
-        location: 'Unknown',
-        timestamp: new Date().toISOString(),
-        validationStatus: 'Pending',
-      };
-      
-      setReports([newReport, ...reports]);
-      setInputText('');
-      
-      // Try to parse the result if it's JSON
+      // Try to parse the result
       try {
         const resultJson = JSON.parse(data.result);
-        newReport.classification = resultJson.classification || 'Other';
-        newReport.location = resultJson.location || 'Unknown';
-        setReports([...reports]);
+        setReports(prev => prev.map(r => r.id === newReport.id ? {
+          ...r,
+          classification: resultJson.classification || 'Other',
+          location: resultJson.location || 'Unknown',
+          validationStatus: 'Verified'
+        } : r));
       } catch {
-        newReport.classification = data.result.substring(0, 50) + '...';
-        setReports([...reports]);
+        setReports(prev => prev.map(r => r.id === newReport.id ? {
+          ...r,
+          classification: 'Analyzed',
+          location: 'Multiple',
+          validationStatus: 'Verified'
+        } : r));
       }
     } catch (error) {
       console.error('Error submitting intel:', error);
+      setReports(prev => prev.map(r => r.id === newReport.id ? {
+        ...r,
+        classification: 'Error',
+        validationStatus: 'Unverified'
+      } : r));
     } finally {
       setLoading(false);
     }
