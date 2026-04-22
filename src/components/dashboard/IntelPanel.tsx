@@ -106,62 +106,54 @@ export default function IntelPanel() {
   }, []);
 
   return (
-    <aside className="w-80 border-l border-white/5 bg-card/40 backdrop-blur-lg overflow-y-auto shrink-0 flex flex-col">
-      <div className="p-4 border-b border-white/5">
-        <h2 className="text-sm font-semibold text-foreground/90 flex items-center gap-2">
-          <MessageSquare className="w-4 h-4 text-primary" />
-          WhatsApp Intel Reports
+    <aside className="w-80 border-l border-white/10 bg-white/[0.08] backdrop-blur-3xl overflow-y-auto shrink-0 flex flex-col shadow-2xl">
+      <div className="p-6 border-b border-white/10">
+        <h2 className="text-sm font-black text-white/90 flex items-center gap-3 uppercase tracking-[0.2em]">
+          <MessageSquare className="w-4 h-4 text-primary drop-shadow-[0_0_5px_rgba(59,130,246,0.5)]" />
+          Intel Feed
         </h2>
       </div>
       
       {/* Input section */}
-      <div className="p-4 border-b border-white/5 bg-white/5">
+      <div className="p-6 border-b border-white/10 bg-white/[0.03]">
         <div className="flex gap-2">
           <input
             type="text"
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
-            placeholder="Enter field report..."
-            className="flex-1 px-3 py-2 text-sm border border-white/10 rounded-md bg-white/5 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/50 transition-all"
+            placeholder="Log intelligence..."
+            className="flex-1 px-4 py-3 text-xs border border-white/10 rounded-2xl bg-black/20 text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-primary/40 transition-all shadow-inner font-bold uppercase tracking-wider"
             onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
           />
           <button
             onClick={handleSubmit}
             disabled={loading || !inputText.trim()}
-            className="px-3 py-2 bg-primary/20 text-primary border border-primary/30 rounded-md hover:bg-primary/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-3 bg-white/10 text-white border border-white/20 rounded-2xl hover:bg-white/20 transition-all disabled:opacity-50 shadow-xl group"
           >
-            <Send className="w-4 h-4" />
+            <Send className="w-4 h-4 group-hover:text-primary transition-colors" />
           </button>
         </div>
       </div>
       
       {/* Reports list */}
-      <div className="divide-y divide-white/5 flex-1 overflow-y-auto">
+      <div className="divide-y divide-white/5 flex-1 overflow-y-auto custom-scrollbar">
         {reports.map(r => (
-          <div key={r.id} className="p-4 hover:bg-white/5 transition-colors group">
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-primary">{r.classification}</span>
-              <div className="flex items-center gap-1.5 opacity-80">
+          <div key={r.id} className="p-6 hover:bg-white/[0.05] transition-all group cursor-default border-l-4 border-transparent hover:border-primary/40">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-[10px] font-black uppercase tracking-[0.15em] text-primary/90">{r.classification}</span>
+              <div className="flex items-center gap-1.5 opacity-60">
                 {validationIcon[r.validationStatus]}
-                <span className="text-[9px] font-medium">{r.validationStatus}</span>
+                <span className="text-[9px] font-black uppercase tracking-tighter">{r.validationStatus}</span>
               </div>
             </div>
-            <p className="text-sm text-foreground/80 leading-relaxed mb-2 group-hover:text-foreground">{r.message}</p>
-            <div className="flex items-center justify-between text-[10px] text-muted-foreground font-medium">
-              <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {r.location}</span>
+            <p className="text-sm text-white/80 leading-relaxed mb-4 group-hover:text-white transition-colors font-medium">"{r.message}"</p>
+            <div className="flex items-center justify-between text-[10px] text-white/40 font-black uppercase tracking-widest">
+              <span className="flex items-center gap-2 bg-white/5 px-2 py-1 rounded-md"><MapPin className="w-3 h-3 text-primary/70" /> {r.location}</span>
               <span>{new Date(r.timestamp).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</span>
             </div>
           </div>
         ))}
       </div>
-      
-      {/* Advisory section */}
-      {advisory && (
-        <div className="p-4 border-t border-white/5 bg-primary/5">
-          <h3 className="text-sm font-semibold text-primary mb-2">AI Advisory</h3>
-          <p className="text-xs text-foreground/80 whitespace-pre-wrap leading-relaxed">{advisory}</p>
-        </div>
-      )}
     </aside>
   );
 }

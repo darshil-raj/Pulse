@@ -115,11 +115,11 @@
   }
 
   .glass-card {
-    @apply bg-card/40 backdrop-blur-md border border-white/5;
+    @apply bg-white/[0.08] backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)];
   }
 
   .site-bg {
-    background-image: linear-gradient(rgba(2, 6, 23, 0.85), rgba(2, 6, 23, 0.85)), url('https://www.dhl.com/discover/adobe/dynamicmedia/deliver/dm-aid--fb2074c7-45b1-4634-945b-cbf007e04a1c/desktop-image-1920x918.jpg?quality=82&preferwebp=true&width=1600');
+    background-image: linear-gradient(rgba(2, 6, 23, 0.4), rgba(2, 6, 23, 0.5)), url('https://www.dhl.com/discover/adobe/dynamicmedia/deliver/dm-aid--fb2074c7-45b1-4634-945b-cbf007e04a1c/desktop-image-1920x918.jpg?quality=82&preferwebp=true&width=1600');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;

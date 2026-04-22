@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { graphNodes } from '@/data/mockData';
+import { Radio } from 'lucide-react';
 
 const MAP_BOUNDS = { minLat: 6, maxLat: 30, minLng: 68, maxLng: 92 };
 
@@ -28,7 +29,7 @@ export default function MapVisualization() {
 
   useEffect(() => {
     fetchSignals();
-    const interval = setInterval(fetchSignals, 5000); // Poll every 5s
+    const interval = setInterval(fetchSignals, 5000);
     return () => clearInterval(interval);
   }, []);
 
@@ -57,14 +58,14 @@ export default function MapVisualization() {
     ctx.clearRect(0, 0, w, h);
 
     // Grid
-    ctx.strokeStyle = 'rgba(59,130,246,0.06)';
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
     ctx.lineWidth = 1;
-    for (let i = 0; i < w; i += 40) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, h); ctx.stroke(); }
-    for (let i = 0; i < h; i += 40) { ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(w, i); ctx.stroke(); }
+    for (let i = 0; i < w; i += 50) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, h); ctx.stroke(); }
+    for (let i = 0; i < h; i += 50) { ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(w, i); ctx.stroke(); }
 
-    // India outline hint
-    ctx.strokeStyle = 'rgba(59,130,246,0.12)';
-    ctx.lineWidth = 1.5;
+    // India outline
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+    ctx.lineWidth = 2;
     const outline = [
       [68.7,23.6],[72.8,19.1],[73,15.6],[74.8,12.7],[77.5,8.1],[79.8,9.1],[80.2,13.1],[82,16.2],[86,21.5],[88.5,22],
       [89,26],[88,27.5],[84,26.5],[80,28.6],[77.5,28.7],[76,30],[74,30.5],[72,27],[69,24]
@@ -77,59 +78,82 @@ export default function MapVisualization() {
     ctx.closePath();
     ctx.stroke();
 
-    // Heatmap blobs for LIVE signals
+    // Live Signal Blobs
     liveSignals.forEach(sig => {
       const {x, y} = latLngToXY(sig.lat || 13.08, sig.lng || 80.27, w, h);
-      const radius = sig.severity === 'High' ? 50 : sig.severity === 'Medium' ? 35 : 20;
+      const radius = sig.severity === 'High' ? 60 : sig.severity === 'Medium' ? 40 : 25;
       const color = severityColor[sig.severity as keyof typeof severityColor] || '#3b82f6';
+      
       const gradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
-      gradient.addColorStop(0, color + '40');
+      gradient.addColorStop(0, color + '50');
       gradient.addColorStop(1, color + '00');
+      
       ctx.fillStyle = gradient;
       ctx.beginPath();
       ctx.arc(x, y, radius, 0, Math.PI * 2);
       ctx.fill();
       
-      // Signal dot
       ctx.fillStyle = color;
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = color;
       ctx.beginPath();
-      ctx.arc(x, y, 4, 0, Math.PI * 2);
+      ctx.arc(x, y, 5, 0, Math.PI * 2);
       ctx.fill();
+      ctx.shadowBlur = 0;
     });
 
-    // Port/node markers
+    // Node markers
     graphNodes.forEach(node => {
       const {x, y} = latLngToXY(node.lat, node.lng, w, h);
       const color = statusColor[node.status as keyof typeof statusColor];
       
-      // Outer ring
       ctx.strokeStyle = color;
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 3;
       ctx.beginPath();
-      ctx.arc(x, y, node.type === 'port' ? 10 : 7, 0, Math.PI * 2);
+      ctx.arc(x, y, node.type === 'port' ? 12 : 8, 0, Math.PI * 2);
       ctx.stroke();
       
-      // Inner dot
-      ctx.fillStyle = color;
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
       ctx.beginPath();
       ctx.arc(x, y, 3, 0, Math.PI * 2);
       ctx.fill();
 
-      // Label
-      ctx.fillStyle = 'rgba(210,220,240,0.8)';
-      ctx.font = '10px Inter, sans-serif';
+      ctx.fillStyle = 'white';
+      ctx.font = 'bold 11px Inter, sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText(node.label, x, y - 14);
+      ctx.shadowBlur = 4;
+      ctx.shadowColor = 'black';
+      ctx.fillText(node.label.toUpperCase(), x, y - 18);
+      ctx.shadowBlur = 0;
     });
   }
 
   return (
-    <div className="flex-1 relative bg-background overflow-hidden">
+    <div className="flex-1 relative bg-white/[0.02] overflow-hidden group cursor-crosshair">
       <canvas ref={canvasRef} className="absolute inset-0" />
-      <div className="absolute top-3 right-3 bg-card/90 backdrop-blur border border-border rounded-lg p-2 text-[10px] text-muted-foreground space-y-1">
-        <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-safe" /> Safe</div>
-        <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-warning" /> Watch</div>
-        <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-critical" /> Critical</div>
+      
+      {/* Premium Floating Legend */}
+      <div className="absolute top-8 right-8 bg-white/[0.08] backdrop-blur-3xl border border-white/20 rounded-3xl p-6 text-[10px] text-white/70 space-y-4 z-10 shadow-[0_15px_40px_rgba(0,0,0,0.5)] border-t-white/40">
+        <div className="font-black uppercase tracking-[0.25em] text-primary flex items-center gap-3 border-b border-white/10 pb-3">
+            <div className="w-2 h-2 rounded-full bg-primary animate-ping" />
+            Signal Radar
+        </div>
+        <div className="space-y-3 font-black tracking-widest">
+            <div className="flex items-center gap-4 group/item cursor-default">
+                <div className="w-3 h-3 rounded-full bg-safe shadow-[0_0_12px_rgba(16,185,129,0.8)] transition-transform group-hover/item:scale-125" /> 
+                <span className="group-hover/item:text-white transition-colors">Nominal</span>
+            </div>
+            <div className="flex items-center gap-4 group/item cursor-default">
+                <div className="w-3 h-3 rounded-full bg-warning shadow-[0_0_12px_rgba(245,158,11,0.8)] transition-transform group-hover/item:scale-125" /> 
+                <span className="group-hover/item:text-white transition-colors">Alert</span>
+            </div>
+            <div className="flex items-center gap-4 group/item cursor-default">
+                <div className="w-3 h-3 rounded-full bg-critical shadow-[0_0_15px_rgba(239,68,68,1)] transition-transform group-hover/item:scale-125" /> 
+                <span className="group-hover/item:text-white transition-colors">Disrupted</span>
+            </div>
+        </div>
+        <div className="h-px bg-white/5 my-2" />
+        <div className="text-[9px] font-bold italic text-white/30 uppercase tracking-tighter">Live Fusion Engine 1.0</div>
       </div>
     </div>
   );

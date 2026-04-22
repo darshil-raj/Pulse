@@ -16,7 +16,7 @@ const typeIcons: Record<Signal['type'], React.ElementType> = {
 const severityBadge: Record<string, string> = {
   Low: 'bg-safe/10 text-safe border-safe/30',
   Medium: 'bg-warning/10 text-warning border-warning/30',
-  High: 'bg-critical/10 text-critical border-critical/30',
+  High: 'bg-critical/10 text-critical border-critical/30 shadow-[0_0_10px_rgba(239,68,68,0.2)]',
 };
 
 const signalTypes: Signal['type'][] = ['Weather', 'AIS Vessel', 'News Sentiment', 'Human Intel', 'Port Energy', 'Traffic'];
@@ -57,86 +57,90 @@ export default function SignalFeedPage() {
   return (
     <div className="h-screen flex flex-col overflow-hidden site-bg relative">
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px] animate-pulse" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '1s' }} />
-
+      
       <div className="relative z-10 flex flex-col h-full">
         <Navbar />
-        <div className="flex-1 overflow-hidden flex flex-col">
-          <div className="p-6 border-b border-white/5 bg-card/40 backdrop-blur-md flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center">
-                <Radio className="w-5 h-5 text-primary" />
+        <div className="flex-1 overflow-hidden flex flex-col p-6 gap-6">
+          {/* Header */}
+          <div className="p-8 border border-white/20 bg-white/[0.08] backdrop-blur-3xl rounded-3xl flex items-center justify-between shadow-2xl">
+            <div className="flex items-center gap-6">
+              <div className="w-14 h-14 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center shadow-xl">
+                <Radio className="w-8 h-8 text-primary drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-foreground/90 tracking-tight uppercase tracking-widest">Signal Feed Radar</h1>
-                <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-bold uppercase tracking-wider mt-0.5">
-                  <div className="w-1.5 h-1.5 rounded-full bg-safe pulse-live" />
-                  Fusion Core Active • 5s Refresh
+                <h1 className="text-2xl font-black text-white tracking-widest uppercase">Signal Radar Feed</h1>
+                <div className="flex items-center gap-3 text-xs text-white/50 font-black uppercase tracking-[0.2em] mt-1">
+                  <div className="w-2 h-2 rounded-full bg-safe animate-pulse shadow-[0_0_8px_rgba(16,185,129,1)]" />
+                  Live Ingestion Active • 5s Cycle
                 </div>
               </div>
             </div>
             <button
               onClick={handleSimulate}
               disabled={simulating}
-              className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-critical/20 text-critical border border-critical/30 text-xs font-bold uppercase tracking-widest hover:bg-critical/30 transition-all active:scale-95 disabled:opacity-50"
+              className="flex items-center gap-3 px-8 py-3.5 rounded-2xl bg-critical/20 text-critical border border-critical/40 text-xs font-black uppercase tracking-[0.2em] hover:bg-critical/30 transition-all active:scale-95 disabled:opacity-50 shadow-xl"
             >
-              <AlertTriangle className="w-4 h-4" />
-              {simulating ? 'Simulating...' : 'Inject Disruption'}
+              <AlertTriangle className="w-5 h-5" />
+              {simulating ? 'Injecting Disruption...' : 'Inject Demo Disruption'}
             </button>
           </div>
 
-          <div className="px-6 py-3 border-b border-white/5 bg-white/5 backdrop-blur-sm flex items-center gap-3 overflow-x-auto no-scrollbar">
-            <div className="flex items-center gap-2 pr-4 border-r border-white/10 shrink-0">
-                <Filter className="w-4 h-4 text-muted-foreground" />
-                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Filters</span>
+          {/* Filter bar */}
+          <div className="px-8 py-4 border border-white/10 bg-white/[0.05] backdrop-blur-2xl rounded-2xl flex items-center gap-4 shadow-xl">
+            <div className="flex items-center gap-3 pr-6 border-r border-white/10 shrink-0">
+                <Filter className="w-5 h-5 text-white/40" />
+                <span className="text-[11px] font-black text-white/40 uppercase tracking-[0.2em]">Data Stream</span>
             </div>
-            <button
-              onClick={() => setFilter('All')}
-              className={`px-4 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all ${filter === 'All' ? 'bg-primary/20 text-primary border border-primary/30' : 'text-muted-foreground hover:text-foreground hover:bg-white/5 border border-transparent'}`}
-            >
-              All Signals
-            </button>
-            {signalTypes.map(t => {
-              const Icon = typeIcons[t];
-              return (
+            <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
                 <button
-                  key={t}
-                  onClick={() => setFilter(t)}
-                  className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all shrink-0 ${filter === t ? 'bg-primary/20 text-primary border border-primary/30' : 'text-muted-foreground hover:text-foreground hover:bg-white/5 border border-transparent'}`}
+                onClick={() => setFilter('All')}
+                className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all whitespace-nowrap ${filter === 'All' ? 'bg-white/20 text-white border border-white/30 shadow-lg' : 'text-white/40 hover:text-white hover:bg-white/5 border border-transparent'}`}
                 >
-                  <Icon className="w-3.5 h-3.5" />
-                  {t}
+                All Sources
                 </button>
-              );
-            })}
+                {signalTypes.map(t => {
+                const Icon = typeIcons[t];
+                return (
+                    <button
+                    key={t}
+                    onClick={() => setFilter(t)}
+                    className={`flex items-center gap-2 px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shrink-0 whitespace-nowrap ${filter === t ? 'bg-white/20 text-white border border-white/30 shadow-lg' : 'text-white/40 hover:text-white hover:bg-white/5 border border-transparent'}`}
+                    >
+                    <Icon className="w-3.5 h-3.5" />
+                    {t}
+                    </button>
+                );
+                })}
+            </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">
-            <div className="max-w-5xl mx-auto space-y-3">
+          {/* Signal list */}
+          <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+            <div className="grid grid-cols-1 gap-4 max-w-6xl mx-auto pb-6">
               {filtered.map(sig => {
                 const Icon = typeIcons[sig.type];
                 return (
-                  <div key={sig.id} className="bg-card/40 backdrop-blur-md border border-white/5 rounded-2xl p-5 flex items-start gap-5 hover:bg-white/5 transition-all group hover:scale-[1.01] cursor-pointer">
-                    <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center shrink-0 group-hover:border-primary/30 transition-all">
-                      <Icon className="w-6 h-6 text-foreground/70 group-hover:text-primary transition-colors" />
+                  <div key={sig.id} className="bg-white/[0.06] backdrop-blur-2xl border border-white/10 rounded-3xl p-6 flex items-start gap-6 hover:bg-white/[0.1] transition-all group hover:scale-[1.01] hover:shadow-[0_15px_40px_rgba(0,0,0,0.4)] cursor-pointer relative overflow-hidden">
+                    <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0 group-hover:border-primary/50 transition-all shadow-inner">
+                      <Icon className="w-8 h-8 text-white/60 group-hover:text-primary transition-colors drop-shadow-[0_0_10px_rgba(255,255,255,0.1)]" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-3 mb-2">
-                        <span className="font-bold text-sm text-foreground/90 uppercase tracking-widest">{sig.type}</span>
-                        <span className={`text-[9px] font-bold px-2 py-0.5 rounded-sm border ${severityBadge[sig.severity]}`}>
+                      <div className="flex items-center gap-4 mb-3">
+                        <span className="font-black text-sm text-white uppercase tracking-[0.2em]">{sig.type}</span>
+                        <span className={`text-[9px] font-black px-2.5 py-1 rounded-sm border ${severityBadge[sig.severity]}`}>
                           {sig.severity.toUpperCase()}
                         </span>
                       </div>
-                      <p className="text-sm text-foreground/70 mb-3 leading-relaxed group-hover:text-foreground/90 transition-colors font-medium italic">"{sig.description}"</p>
-                      <div className="flex items-center gap-6 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                        <span className="flex items-center gap-1.5"><MapPin className="w-3 h-3" /> {sig.location}</span>
+                      <p className="text-base text-white/70 mb-4 leading-relaxed group-hover:text-white transition-colors font-medium italic">"{sig.description}"</p>
+                      <div className="flex items-center gap-8 text-[11px] font-black uppercase tracking-[0.2em] text-white/40">
+                        <span className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-lg border border-white/5 transition-all group-hover:border-primary/20"><MapPin className="w-4 h-4 text-primary/60" /> {sig.location}</span>
                         <span className="opacity-60">{sig.source}</span>
-                        <span className="opacity-60">{new Date(sig.timestamp).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
+                        <span className="opacity-60 font-mono">{new Date(sig.timestamp).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
                       </div>
                     </div>
                     <div className="text-right shrink-0">
-                      <div className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Fusion Score</div>
-                      <div className="text-lg font-mono font-bold text-primary drop-shadow-[0_0_8px_rgba(59,130,246,0.3)]">{(sig.fusionScore * 100).toFixed(0)}%</div>
+                      <div className="text-[10px] font-black uppercase tracking-[0.25em] text-white/30 mb-2">Confidence</div>
+                      <div className="text-3xl font-mono font-black text-primary drop-shadow-[0_0_15px_rgba(59,130,246,0.6)]">{(sig.fusionScore * 100).toFixed(0)}%</div>
                     </div>
                   </div>
                 );
