@@ -24,20 +24,20 @@ function CustomNode({ data }: NodeProps) {
   return (
     <div
       className="relative flex flex-col items-center"
-      style={{ filter: `drop-shadow(0 0 8px ${color}40)` }}
+      style={{ filter: `drop-shadow(0 0 12px ${color}60)` }}
     >
       <Handle type="target" position={Position.Top} className="opacity-0" />
       <div
-        className="w-14 h-14 rounded-full flex items-center justify-center border-2"
-        style={{ backgroundColor: color + '20', borderColor: color }}
+        className="w-16 h-16 rounded-2xl flex items-center justify-center border-2 backdrop-blur-xl transition-all hover:scale-110 cursor-pointer"
+        style={{ backgroundColor: 'rgba(15, 23, 42, 0.4)', borderColor: color }}
       >
-        <Icon className="w-6 h-6" style={{ color }} />
+        <Icon className="w-8 h-8" style={{ color }} />
       </div>
-      <div className="mt-1 text-[10px] font-medium text-foreground text-center whitespace-nowrap">
+      <div className="mt-2 px-3 py-1 rounded-full bg-black/40 backdrop-blur-md border border-white/5 text-[10px] font-bold text-foreground/90 text-center whitespace-nowrap uppercase tracking-widest">
         {data.label as string}
       </div>
-      <div className="text-[9px] font-mono" style={{ color }}>
-        Risk: {data.riskScore as number}%
+      <div className="text-[9px] font-mono font-bold mt-1" style={{ color }}>
+        RISK: {data.riskScore as number}%
       </div>
       <Handle type="source" position={Position.Bottom} className="opacity-0" />
     </div>
@@ -46,7 +46,6 @@ function CustomNode({ data }: NodeProps) {
 
 const nodeTypes = { custom: CustomNode };
 
-// Layout nodes in a tree-like structure
 const positions: Record<string, { x: number; y: number }> = {
   'chennai': { x: 200, y: 0 },
   'mumbai': { x: 500, y: 0 },
@@ -75,8 +74,9 @@ const initialEdges: Edge[] = graphEdges.map(e => ({
   target: e.target,
   animated: e.status === 'critical',
   style: {
-    stroke: statusColors[e.status],
-    strokeWidth: Math.max(1.5, e.volume / 200),
+    stroke: statusColors[e.status as keyof typeof statusColors],
+    strokeWidth: Math.max(2, e.volume / 150),
+    opacity: 0.4,
   },
 }));
 
@@ -90,102 +90,102 @@ export default function SupplyChainGraphPage() {
   const selected = graphNodes.find(n => n.id === selectedNode);
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden">
-      <Navbar />
-      <div className="flex-1 relative">
-        <ReactFlow
-          nodes={initialNodes}
-          edges={initialEdges}
-          nodeTypes={nodeTypes}
-          onNodeClick={onNodeClick}
-          fitView
-          fitViewOptions={{ padding: 0.3 }}
-          proOptions={{ hideAttribution: true }}
-        >
-          <Background color="hsl(220,14%,18%)" gap={30} />
-          <Controls
-            className="!bg-card !border-border !rounded-lg"
-            style={{ button: { backgroundColor: 'hsl(220,18%,10%)', color: 'white', borderColor: 'hsl(220,14%,18%)' } } as any}
-          />
-          <Panel position="top-left" className="bg-card/90 backdrop-blur border border-border rounded-lg p-3 m-3">
-            <h2 className="text-sm font-semibold text-foreground mb-2">Supply Chain Graph</h2>
-            <div className="space-y-1 text-[10px] text-muted-foreground">
-              <div className="flex items-center gap-2"><Anchor className="w-3 h-3" /> Ports</div>
-              <div className="flex items-center gap-2"><Warehouse className="w-3 h-3" /> Warehouses</div>
-              <div className="flex items-center gap-2"><MapPin className="w-3 h-3" /> Distribution Centers</div>
-            </div>
-          </Panel>
-        </ReactFlow>
+    <div className="h-screen flex flex-col overflow-hidden bg-[#020617] relative">
+      <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px] animate-pulse" />
+      
+      <div className="relative z-10 flex flex-col h-full">
+        <Navbar />
+        <div className="flex-1 relative">
+          <ReactFlow
+            nodes={initialNodes}
+            edges={initialEdges}
+            nodeTypes={nodeTypes}
+            onNodeClick={onNodeClick}
+            fitView
+            fitViewOptions={{ padding: 0.3 }}
+            proOptions={{ hideAttribution: true }}
+          >
+            <Background color="rgba(59,130,246,0.05)" gap={30} />
+            <Controls
+              className="!bg-card/40 !backdrop-blur-md !border-white/10 !rounded-xl"
+              style={{ button: { backgroundColor: 'transparent', color: 'white', borderColor: 'rgba(255,255,255,0.05)' } } as any}
+            />
+            <Panel position="top-left" className="bg-card/40 backdrop-blur-md border border-white/5 rounded-2xl p-5 m-5 shadow-2xl">
+              <h2 className="text-sm font-bold text-foreground/90 uppercase tracking-widest mb-4">Network Topology</h2>
+              <div className="space-y-2.5 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                <div className="flex items-center gap-3 transition-colors hover:text-primary cursor-default"><Anchor className="w-3.5 h-3.5" /> Core Ports</div>
+                <div className="flex items-center gap-3 transition-colors hover:text-primary cursor-default"><Warehouse className="w-3.5 h-3.5" /> Regional Hubs</div>
+                <div className="flex items-center gap-3 transition-colors hover:text-primary cursor-default"><MapPin className="w-3.5 h-3.5" /> Distribution</div>
+              </div>
+            </Panel>
+          </ReactFlow>
 
-        {/* Node Detail Panel */}
-        {selected && (
-          <div className="absolute top-0 right-0 w-80 h-full bg-card border-l border-border p-4 overflow-y-auto z-10">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-foreground">{selected.label}</h3>
-              <button onClick={() => setSelectedNode(null)} className="text-muted-foreground hover:text-foreground">
-                <X className="w-4 h-4" />
-              </button>
-            </div>
+          {/* Node Detail Panel */}
+          {selected && (
+            <div className="absolute top-4 right-4 bottom-4 w-80 bg-card/40 backdrop-blur-lg border border-white/10 p-6 overflow-y-auto z-10 rounded-2xl shadow-2xl animate-in slide-in-from-right duration-300">
+              <div className="flex items-center justify-between mb-8">
+                <h3 className="font-bold text-lg text-foreground/90 uppercase tracking-widest">{selected.label}</h3>
+                <button onClick={() => setSelectedNode(null)} className="p-2 hover:bg-white/5 rounded-lg transition-colors text-muted-foreground hover:text-foreground">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
 
-            <div className="space-y-4 text-sm">
-              <div className="bg-accent/50 rounded-lg p-3">
-                <div className="text-xs text-muted-foreground mb-1">Risk Score</div>
-                <div className="text-2xl font-bold" style={{ color: statusColors[selected.status] }}>
-                  {selected.riskScore}%
+              <div className="space-y-6 text-sm">
+                <div className="bg-white/5 border border-white/5 rounded-2xl p-5 group hover:bg-white/10 transition-all">
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Impact Probability</div>
+                  <div className="text-3xl font-mono font-bold" style={{ color: statusColors[selected.status as keyof typeof statusColors] }}>
+                    {selected.riskScore}%
+                  </div>
                 </div>
-              </div>
 
-              <div>
-                <div className="text-xs text-muted-foreground mb-1">Status</div>
-                <span
-                  className="text-xs font-semibold px-2 py-1 rounded"
-                  style={{ backgroundColor: statusColors[selected.status] + '20', color: statusColors[selected.status] }}
-                >
-                  {selected.status.toUpperCase()}
-                </span>
-              </div>
-
-              <div>
-                <div className="text-xs text-muted-foreground mb-1">Type</div>
-                <div className="text-foreground capitalize">{selected.type}</div>
-              </div>
-
-              <div>
-                <div className="text-xs text-muted-foreground mb-1">Active Signals</div>
-                <div className="text-foreground">{selected.activeSignals}</div>
-              </div>
-
-              <div>
-                <div className="text-xs text-muted-foreground mb-2">Connected Nodes</div>
-                <div className="space-y-1">
-                  {graphEdges
-                    .filter(e => e.source === selected.id || e.target === selected.id)
-                    .map(e => {
-                      const otherId = e.source === selected.id ? e.target : e.source;
-                      const other = graphNodes.find(n => n.id === otherId);
-                      return other ? (
-                        <div
-                          key={e.id}
-                          className="flex items-center justify-between bg-accent/30 rounded px-2 py-1.5 cursor-pointer hover:bg-accent"
-                          onClick={() => setSelectedNode(other.id)}
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                        <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Status</div>
+                        <span
+                        className="text-[10px] font-bold px-2 py-0.5 rounded-sm border inline-block"
+                        style={{ backgroundColor: statusColors[selected.status as keyof typeof statusColors] + '20', borderColor: statusColors[selected.status as keyof typeof statusColors] + '40', color: statusColors[selected.status as keyof typeof statusColors] }}
                         >
-                          <span className="text-xs text-foreground">{other.label}</span>
-                          <span className="text-[10px]" style={{ color: statusColors[other.status] }}>
-                            {other.riskScore}%
-                          </span>
-                        </div>
-                      ) : null;
-                    })}
+                        {selected.status.toUpperCase()}
+                        </span>
+                    </div>
+                    <div className="space-y-1 text-right">
+                        <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Entity</div>
+                        <div className="text-foreground/90 font-bold capitalize">{selected.type}</div>
+                    </div>
+                </div>
+
+                <div className="bg-white/5 border border-white/5 rounded-xl p-4">
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">Fusion Precursors</div>
+                  <div className="text-foreground font-medium text-xs leading-relaxed">{selected.activeSignals}</div>
+                </div>
+
+                <div>
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-4">Downstream Dependencies</div>
+                  <div className="space-y-2">
+                    {graphEdges
+                      .filter(e => e.source === selected.id || e.target === selected.id)
+                      .map(e => {
+                        const otherId = e.source === selected.id ? e.target : e.source;
+                        const other = graphNodes.find(n => n.id === otherId);
+                        return other ? (
+                          <div
+                            key={e.id}
+                            className="flex items-center justify-between bg-white/5 border border-white/5 rounded-xl px-4 py-3 cursor-pointer hover:bg-white/10 hover:border-primary/30 transition-all"
+                            onClick={() => setSelectedNode(other.id)}
+                          >
+                            <span className="text-xs font-bold text-foreground/80">{other.label}</span>
+                            <span className="text-[10px] font-mono font-bold" style={{ color: statusColors[other.status as keyof typeof statusColors] }}>
+                              {other.riskScore}%
+                            </span>
+                          </div>
+                        ) : null;
+                      })}
+                  </div>
                 </div>
               </div>
-
-              <div>
-                <div className="text-xs text-muted-foreground mb-1">Coordinates</div>
-                <div className="text-xs font-mono text-muted-foreground">{selected.lat}°N, {selected.lng}°E</div>
-              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );

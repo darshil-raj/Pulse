@@ -13,13 +13,13 @@ export default function Navbar() {
   const alertCount = alerts.length;
 
   return (
-    <header className="h-14 border-b border-border bg-card flex items-center px-4 justify-between shrink-0 z-50">
+    <header className="h-14 border-b border-white/5 bg-card/40 backdrop-blur-md flex items-center px-4 justify-between shrink-0 z-50">
       <div className="flex items-center gap-6">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-            <Activity className="w-4 h-4 text-primary-foreground" />
+        <Link to="/" className="flex items-center gap-2 group">
+          <div className="w-8 h-8 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center transition-all group-hover:bg-primary/30 group-hover:scale-105">
+            <Activity className="w-4 h-4 text-primary" />
           </div>
-          <span className="font-semibold text-lg tracking-tight text-foreground">PULSE</span>
+          <span className="font-semibold text-lg tracking-tight text-foreground/90 transition-colors group-hover:text-primary">PULSE</span>
         </Link>
 
         <nav className="flex items-center gap-1 ml-4">
@@ -29,8 +29,8 @@ export default function Navbar() {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                  active ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                  active ? 'bg-primary/20 text-primary border border-primary/20' : 'text-muted-foreground hover:text-foreground hover:bg-white/5 border border-transparent'
                 }`}
               >
                 <item.icon className="w-4 h-4" />

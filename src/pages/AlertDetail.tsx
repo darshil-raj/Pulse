@@ -78,7 +78,7 @@ export default function AlertDetail() {
 
   if (!alert) {
     return (
-      <div className="h-screen flex flex-col">
+      <div className="h-screen flex flex-col bg-[#020617] relative">
         <Navbar />
         <div className="flex-1 flex items-center justify-center text-muted-foreground">Alert not found</div>
       </div>
@@ -86,135 +86,155 @@ export default function AlertDetail() {
   }
 
   const bannerColor = alert.severity === 'red'
-    ? 'bg-critical/10 border-critical text-critical'
-    : 'bg-warning/10 border-warning text-warning';
+    ? 'bg-critical/20 border-critical/30 text-critical shadow-[0_0_15px_rgba(239,68,68,0.1)]'
+    : 'bg-warning/20 border-warning/30 text-warning shadow-[0_0_15px_rgba(245,158,11,0.1)]';
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden">
-      <Navbar />
+    <div className="h-screen flex flex-col overflow-hidden bg-[#020617] relative font-sans">
+      {/* Background Glows */}
+      <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px] animate-pulse" />
+      
+      <div className="relative z-10 flex flex-col h-full">
+        <Navbar />
 
-      {/* Alert Banner */}
-      <div className={`border-b-2 ${bannerColor} px-6 py-3 flex items-center gap-3`}>
-        <AlertTriangle className="w-5 h-5" />
-        <span className="font-semibold text-sm">
-          {alert.severity === 'red' ? 'CRITICAL' : 'WARNING'} DISRUPTION ALERT — {alert.portName}
-        </span>
-        <span className="ml-auto text-xs opacity-80">
-          Confidence: {alert.confidence}% • Detected: {new Date(alert.timestamp).toLocaleString('en-IN')}
-        </span>
-      </div>
+        {/* Alert Banner */}
+        <div className={`border-b border-white/5 backdrop-blur-md ${bannerColor} px-6 py-3 flex items-center gap-3`}>
+          <AlertTriangle className="w-5 h-5 animate-bounce" />
+          <span className="font-bold text-sm tracking-wide">
+            {alert.severity === 'red' ? 'CRITICAL' : 'WARNING'} DISRUPTION ALERT — {alert.portName}
+          </span>
+          <span className="ml-auto text-xs font-medium opacity-80">
+            Confidence: {alert.confidence}% • Detected: {new Date(alert.timestamp).toLocaleString('en-IN')}
+          </span>
+        </div>
 
-      <div className="flex-1 overflow-y-auto">
-        <div className="p-4">
-          <Link to="/" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4">
-            <ArrowLeft className="w-4 h-4" /> Back to Dashboard
-          </Link>
+        <div className="flex-1 overflow-y-auto custom-scrollbar">
+          <div className="p-6 max-w-7xl mx-auto w-full">
+            <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors mb-6 group">
+              <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" /> Back to Dashboard
+            </Link>
 
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            {/* Cascade Graph */}
-            <div className="bg-card border border-border rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
-                <ShieldAlert className="w-4 h-4 text-critical" />
-                Cascade Blast Radius
-              </h3>
-              <div className="h-80">
-                <CascadeGraph affectedNodes={alert.affectedNodes} />
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
+              {/* Cascade Graph */}
+              <div className="lg:col-span-7 bg-card/40 backdrop-blur-md border border-white/5 rounded-2xl p-6 shadow-xl">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-sm font-bold text-foreground/90 flex items-center gap-2 uppercase tracking-widest">
+                    <ShieldAlert className="w-4 h-4 text-critical" />
+                    Cascade Blast Radius
+                  </h3>
+                  <div className="px-2 py-1 rounded bg-white/5 border border-white/5 text-[10px] text-muted-foreground uppercase tracking-wider">
+                    GNN Simulation Active
+                  </div>
+                </div>
+                <div className="h-80 bg-white/5 rounded-xl border border-white/5 overflow-hidden">
+                  <CascadeGraph affectedNodes={alert.affectedNodes} />
+                </div>
+              </div>
+
+              {/* Gemini Advisory */}
+              <div className="lg:col-span-5 bg-card/40 backdrop-blur-md border border-white/5 rounded-2xl p-6 shadow-xl">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-sm font-bold text-foreground/90 flex items-center gap-2 uppercase tracking-widest">
+                    <Sparkles className="w-4 h-4 text-primary" />
+                    Gemini AI Advisory
+                  </h3>
+                </div>
+
+                {accepted ? (
+                  <div className="flex flex-col items-center justify-center h-[320px] text-safe bg-safe/5 rounded-xl border border-safe/20 animate-in fade-in zoom-in duration-300">
+                    <CheckCircle className="w-16 h-16 mb-4 drop-shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
+                    <p className="font-bold text-lg">Reroute Accepted</p>
+                    <p className="text-sm text-muted-foreground mt-2 max-w-[240px] text-center">Batch #7823 redirected via Tuticorin. Tracking updated.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-6 text-sm">
+                    <div className="bg-white/5 p-4 rounded-xl border border-white/5">
+                      <h4 className="font-bold text-primary text-[10px] uppercase tracking-widest mb-2">Disruption Summary</h4>
+                      <p className="text-foreground/80 leading-relaxed italic">"{geminiAdvisory.summary}"</p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="bg-white/5 rounded-xl p-4 border border-white/5 hover:bg-white/10 transition-colors">
+                        <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Confidence</div>
+                        <div className="text-2xl font-bold text-critical">{geminiAdvisory.confidence}%</div>
+                      </div>
+                      <div className="bg-white/5 rounded-xl p-4 border border-white/5 hover:bg-white/10 transition-colors">
+                        <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1 flex items-center gap-1"><TrendingDown className="w-3 h-3" /> Delay Reduc.</div>
+                        <div className="text-2xl font-bold text-safe">-{geminiAdvisory.delayReduction}%</div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center text-[11px] border-b border-white/5 pb-2">
+                        <span className="text-muted-foreground font-bold uppercase tracking-widest">Recommended Route</span>
+                        <span className="text-foreground font-semibold">{geminiAdvisory.recommendedRoute}</span>
+                      </div>
+                      <div className="flex justify-between items-center text-[11px] border-b border-white/5 pb-2">
+                        <span className="text-muted-foreground font-bold uppercase tracking-widest">Cost Delta</span>
+                        <span className="text-warning font-semibold">{geminiAdvisory.costDelta}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-4 pt-4">
+                      <button
+                        onClick={() => setAccepted(true)}
+                        className="flex-1 px-6 py-3 rounded-xl bg-primary/20 text-primary border border-primary/30 font-bold text-xs uppercase tracking-widest hover:bg-primary/30 transition-all active:scale-95 shadow-lg shadow-primary/10"
+                      >
+                        Accept Reroute
+                      </button>
+                      <Link
+                        to="/"
+                        className="flex-1 px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-muted-foreground font-bold text-xs uppercase tracking-widest hover:bg-white/10 transition-all text-center flex items-center justify-center"
+                      >
+                        Dismiss
+                      </Link>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Gemini Advisory */}
-            <div className="bg-card border border-border rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-primary" />
-                Gemini Advisory Panel
-              </h3>
-
-              {accepted ? (
-                <div className="flex flex-col items-center justify-center h-64 text-safe">
-                  <CheckCircle className="w-12 h-12 mb-3" />
-                  <p className="font-semibold">Reroute Accepted</p>
-                  <p className="text-sm text-muted-foreground mt-1">Cargo being redirected via Tuticorin corridor</p>
+            {/* Signal Evidence Table */}
+            <div className="bg-card/40 backdrop-blur-md border border-white/5 rounded-2xl p-6 shadow-xl overflow-hidden">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-sm font-bold text-foreground/90 uppercase tracking-widest">Signal Evidence Fusion</h3>
+                <div className="flex gap-3">
+                    <span className="text-[10px] font-bold text-muted-foreground flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-primary" /> Multi-Source Fusion</span>
                 </div>
-              ) : (
-                <div className="space-y-4 text-sm">
-                  <div>
-                    <h4 className="font-medium text-foreground mb-1">Disruption Summary</h4>
-                    <p className="text-muted-foreground leading-relaxed">{geminiAdvisory.summary}</p>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="bg-accent/50 rounded-lg p-3">
-                      <div className="text-xs text-muted-foreground">Confidence</div>
-                      <div className="text-lg font-semibold text-critical">{geminiAdvisory.confidence}%</div>
-                    </div>
-                    <div className="bg-accent/50 rounded-lg p-3">
-                      <div className="text-xs text-muted-foreground flex items-center gap-1"><TrendingDown className="w-3 h-3" /> Delay Reduction</div>
-                      <div className="text-lg font-semibold text-safe">{geminiAdvisory.delayReduction}%</div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <h4 className="font-medium text-foreground mb-1">Recommended Route</h4>
-                    <p className="text-muted-foreground">{geminiAdvisory.recommendedRoute}</p>
-                  </div>
-
-                  <div>
-                    <h4 className="font-medium text-foreground mb-1">Cost Delta</h4>
-                    <p className="text-warning">{geminiAdvisory.costDelta}</p>
-                  </div>
-
-                  <div className="flex gap-3 pt-2">
-                    <button
-                      onClick={() => setAccepted(true)}
-                      className="flex-1 px-4 py-2.5 rounded-lg bg-safe text-safe-foreground font-medium text-sm hover:bg-safe/90 transition-colors"
-                    >
-                      Accept Reroute
-                    </button>
-                    <Link
-                      to="/"
-                      className="flex-1 px-4 py-2.5 rounded-lg border border-border text-muted-foreground font-medium text-sm hover:bg-accent transition-colors text-center"
-                    >
-                      Dismiss
-                    </Link>
-                  </div>
-                </div>
-              )}
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest border-b border-white/10">
+                      <th className="text-left py-3 px-4">Signal Type</th>
+                      <th className="text-left py-3 px-4">Source</th>
+                      <th className="text-left py-3 px-4">Location</th>
+                      <th className="text-left py-3 px-4">Severity</th>
+                      <th className="text-left py-3 px-4">Fusion Score</th>
+                      <th className="text-left py-3 px-4">Timestamp</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5">
+                    {alert.signals.map(sig => (
+                      <tr key={sig.id} className="hover:bg-white/5 transition-colors group">
+                        <td className="py-4 px-4 font-bold text-foreground/90 group-hover:text-primary transition-colors">{sig.type}</td>
+                        <td className="py-4 px-4 text-muted-foreground text-xs font-medium">{sig.source}</td>
+                        <td className="py-4 px-4 text-muted-foreground text-xs font-medium">{sig.location}</td>
+                        <td className="py-4 px-4">
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-sm border ${severityBadge[sig.severity]}`}>
+                            {sig.severity.toUpperCase()}
+                          </span>
+                        </td>
+                        <td className="py-4 px-4 font-mono font-bold text-primary">{(sig.fusionScore * 100).toFixed(0)}%</td>
+                        <td className="py-4 px-4 text-muted-foreground text-[10px] font-medium">
+                          {new Date(sig.timestamp).toLocaleString('en-IN', { dateStyle: 'short', timeStyle: 'short' })}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
-
-          {/* Signal Evidence Table */}
-          <div className="bg-card border border-border rounded-lg p-4">
-            <h3 className="text-sm font-semibold text-foreground mb-3">Signal Evidence</h3>
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-xs text-muted-foreground border-b border-border">
-                  <th className="text-left py-2 px-3">Signal Type</th>
-                  <th className="text-left py-2 px-3">Source</th>
-                  <th className="text-left py-2 px-3">Location</th>
-                  <th className="text-left py-2 px-3">Severity</th>
-                  <th className="text-left py-2 px-3">Fusion Score</th>
-                  <th className="text-left py-2 px-3">Timestamp</th>
-                </tr>
-              </thead>
-              <tbody>
-                {alert.signals.map(sig => (
-                  <tr key={sig.id} className="border-b border-border/50 hover:bg-accent/30">
-                    <td className="py-2.5 px-3 font-medium text-foreground">{sig.type}</td>
-                    <td className="py-2.5 px-3 text-muted-foreground">{sig.source}</td>
-                    <td className="py-2.5 px-3 text-muted-foreground">{sig.location}</td>
-                    <td className="py-2.5 px-3">
-                      <span className={`text-xs font-semibold px-1.5 py-0.5 rounded ${severityBadge[sig.severity]}`}>
-                        {sig.severity}
-                      </span>
-                    </td>
-                    <td className="py-2.5 px-3 font-mono text-primary">{(sig.fusionScore * 100).toFixed(0)}%</td>
-                    <td className="py-2.5 px-3 text-muted-foreground text-xs">
-                      {new Date(sig.timestamp).toLocaleString('en-IN')}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
           </div>
         </div>
       </div>

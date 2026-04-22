@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { intelReports } from '@/data/mockData';
-import { MessageSquare, CheckCircle, Clock, AlertCircle, Send } from 'lucide-react';
+import { MessageSquare, CheckCircle, Clock, AlertCircle, Send, MapPin } from 'lucide-react';
 
 const validationIcon = {
   Verified: <CheckCircle className="w-3.5 h-3.5 text-safe" />,
@@ -30,7 +30,6 @@ export default function IntelPanel() {
     const tempInput = inputText;
     setInputText('');
 
-    // Add initial pending report
     const newReport: IntelReport = {
       id: `new-${Date.now()}`,
       classification: 'Processing...',
@@ -43,7 +42,6 @@ export default function IntelPanel() {
     setReports(prev => [newReport, ...prev]);
 
     try {
-      // Call backend API to classify intel
       const response = await fetch('http://127.0.0.1:8000/api/intel', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -52,9 +50,21 @@ export default function IntelPanel() {
       
       const data = await response.json();
       
-      // Try to parse the result
       try {
         const resultJson = JSON.parse(data.result);
+        
+        await fetch('http://127.0.0.1:8000/api/radar/ingest', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: resultJson.classification || 'Human Intel',
+            location: resultJson.location || 'Unknown',
+            severity: resultJson.severity || 'Medium',
+            lat: resultJson.location?.toLowerCase().includes('chennai') ? 13.08 : 18.94,
+            lng: resultJson.location?.toLowerCase().includes('chennai') ? 80.27 : 72.84,
+          }),
+        });
+
         setReports(prev => prev.map(r => r.id === newReport.id ? {
           ...r,
           classification: resultJson.classification || 'Other',
@@ -96,29 +106,29 @@ export default function IntelPanel() {
   }, []);
 
   return (
-    <aside className="w-80 border-l border-border bg-card overflow-y-auto shrink-0 flex flex-col">
-      <div className="p-3 border-b border-border">
-        <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
-          <MessageSquare className="w-4 h-4" />
+    <aside className="w-80 border-l border-white/5 bg-card/40 backdrop-blur-lg overflow-y-auto shrink-0 flex flex-col">
+      <div className="p-4 border-b border-white/5">
+        <h2 className="text-sm font-semibold text-foreground/90 flex items-center gap-2">
+          <MessageSquare className="w-4 h-4 text-primary" />
           WhatsApp Intel Reports
         </h2>
       </div>
       
       {/* Input section */}
-      <div className="p-3 border-b border-border">
+      <div className="p-4 border-b border-white/5 bg-white/5">
         <div className="flex gap-2">
           <input
             type="text"
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             placeholder="Enter field report..."
-            className="flex-1 px-3 py-2 text-sm border border-border rounded bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+            className="flex-1 px-3 py-2 text-sm border border-white/10 rounded-md bg-white/5 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/50 transition-all"
             onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
           />
           <button
             onClick={handleSubmit}
             disabled={loading || !inputText.trim()}
-            className="px-3 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-3 py-2 bg-primary/20 text-primary border border-primary/30 rounded-md hover:bg-primary/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Send className="w-4 h-4" />
           </button>
@@ -126,19 +136,19 @@ export default function IntelPanel() {
       </div>
       
       {/* Reports list */}
-      <div className="divide-y divide-border flex-1 overflow-y-auto">
+      <div className="divide-y divide-white/5 flex-1 overflow-y-auto">
         {reports.map(r => (
-          <div key={r.id} className="p-3">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-mono text-primary">{r.classification}</span>
-              <div className="flex items-center gap-1">
+          <div key={r.id} className="p-4 hover:bg-white/5 transition-colors group">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-primary">{r.classification}</span>
+              <div className="flex items-center gap-1.5 opacity-80">
                 {validationIcon[r.validationStatus]}
-                <span className="text-[10px] text-muted-foreground">{r.validationStatus}</span>
+                <span className="text-[9px] font-medium">{r.validationStatus}</span>
               </div>
             </div>
-            <p className="text-sm text-foreground leading-snug mb-1.5">{r.message}</p>
-            <div className="flex items-center justify-between text-[11px] text-muted-foreground">
-              <span>{r.location}</span>
+            <p className="text-sm text-foreground/80 leading-relaxed mb-2 group-hover:text-foreground">{r.message}</p>
+            <div className="flex items-center justify-between text-[10px] text-muted-foreground font-medium">
+              <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {r.location}</span>
               <span>{new Date(r.timestamp).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</span>
             </div>
           </div>
@@ -147,9 +157,9 @@ export default function IntelPanel() {
       
       {/* Advisory section */}
       {advisory && (
-        <div className="p-3 border-t border-border bg-muted/50">
-          <h3 className="text-sm font-semibold text-foreground mb-2">AI Advisory</h3>
-          <p className="text-xs text-foreground whitespace-pre-wrap">{advisory}</p>
+        <div className="p-4 border-t border-white/5 bg-primary/5">
+          <h3 className="text-sm font-semibold text-primary mb-2">AI Advisory</h3>
+          <p className="text-xs text-foreground/80 whitespace-pre-wrap leading-relaxed">{advisory}</p>
         </div>
       )}
     </aside>

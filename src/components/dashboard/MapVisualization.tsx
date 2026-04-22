@@ -1,5 +1,5 @@
-import { useEffect, useRef } from 'react';
-import { signals, graphNodes } from '@/data/mockData';
+import { useEffect, useRef, useState } from 'react';
+import { graphNodes } from '@/data/mockData';
 
 const MAP_BOUNDS = { minLat: 6, maxLat: 30, minLng: 68, maxLng: 92 };
 
@@ -14,6 +14,23 @@ const statusColor = { safe: '#10b981', watch: '#f59e0b', critical: '#ef4444' };
 
 export default function MapVisualization() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [liveSignals, setLiveSignals] = useState<any[]>([]);
+
+  const fetchSignals = async () => {
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/signals');
+      const data = await response.json();
+      setLiveSignals(data);
+    } catch (err) {
+      console.error('Failed to fetch live signals:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchSignals();
+    const interval = setInterval(fetchSignals, 5000); // Poll every 5s
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -34,7 +51,7 @@ export default function MapVisualization() {
     resize();
     window.addEventListener('resize', resize);
     return () => window.removeEventListener('resize', resize);
-  }, []);
+  }, [liveSignals]);
 
   function draw(ctx: CanvasRenderingContext2D, w: number, h: number) {
     ctx.clearRect(0, 0, w, h);
@@ -45,7 +62,7 @@ export default function MapVisualization() {
     for (let i = 0; i < w; i += 40) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, h); ctx.stroke(); }
     for (let i = 0; i < h; i += 40) { ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(w, i); ctx.stroke(); }
 
-    // India outline hint (simplified polygon)
+    // India outline hint
     ctx.strokeStyle = 'rgba(59,130,246,0.12)';
     ctx.lineWidth = 1.5;
     const outline = [
@@ -60,11 +77,11 @@ export default function MapVisualization() {
     ctx.closePath();
     ctx.stroke();
 
-    // Heatmap blobs for signals
-    signals.forEach(sig => {
-      const {x, y} = latLngToXY(sig.lat, sig.lng, w, h);
+    // Heatmap blobs for LIVE signals
+    liveSignals.forEach(sig => {
+      const {x, y} = latLngToXY(sig.lat || 13.08, sig.lng || 80.27, w, h);
       const radius = sig.severity === 'High' ? 50 : sig.severity === 'Medium' ? 35 : 20;
-      const color = severityColor[sig.severity];
+      const color = severityColor[sig.severity as keyof typeof severityColor] || '#3b82f6';
       const gradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
       gradient.addColorStop(0, color + '40');
       gradient.addColorStop(1, color + '00');
@@ -72,12 +89,9 @@ export default function MapVisualization() {
       ctx.beginPath();
       ctx.arc(x, y, radius, 0, Math.PI * 2);
       ctx.fill();
-    });
-
-    // Signal dots
-    signals.forEach(sig => {
-      const {x, y} = latLngToXY(sig.lat, sig.lng, w, h);
-      ctx.fillStyle = severityColor[sig.severity];
+      
+      // Signal dot
+      ctx.fillStyle = color;
       ctx.beginPath();
       ctx.arc(x, y, 4, 0, Math.PI * 2);
       ctx.fill();
@@ -86,7 +100,7 @@ export default function MapVisualization() {
     // Port/node markers
     graphNodes.forEach(node => {
       const {x, y} = latLngToXY(node.lat, node.lng, w, h);
-      const color = statusColor[node.status];
+      const color = statusColor[node.status as keyof typeof statusColor];
       
       // Outer ring
       ctx.strokeStyle = color;

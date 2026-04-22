@@ -79,9 +79,11 @@ Pulse Signal Sense is an AI-powered logistics disruption monitoring and intellig
 ## 📡 API Endpoints (Port 8000)
 
 1. **Test Endpoint:** `GET /` - Returns backend status.
-2. **Intel Classification:** `POST /api/intel` - Body: `{ "text": "Report text" }`
-3. **Simulate Disruption:** `POST /api/simulate-disruption` - Body: `{ "port_name": "...", ... }`
-4. **Get Signals:** `GET /api/signals` - Returns current disruption signals.
+2. **Intel Classification:** `POST /api/intel` - Body: `{ "text": "Report text" }` (Gemini-powered).
+3. **Radar Signal Ingest:** `POST /api/radar/ingest` - Body: `{ "type": "...", "location": "...", "severity": "...", "lat": 0.0, "lng": 0.0 }`
+4. **Live Signals:** `GET /api/signals` - Fetches all current radar and human intel signals.
+5. **GNN Cascade Simulation:** `GET /api/cascade/{node_id}` - Simulates downstream impact of a disruption at a specific port or warehouse.
+6. **Simulate Disruption:** `POST /api/simulate-disruption` - Generates a Gemini reroute advisory brief.
 
 ---
 
